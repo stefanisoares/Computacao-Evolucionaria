@@ -14,16 +14,12 @@ def selecao_roleta(pop, fitness):
         probabilidade.append(i/soma_fitness)
         cumulativa = cumulativa + i/soma_fitness
         list_cumulativa.append(cumulativa)
-        #print(probabilidade)
+    #print(probabilidade)
 
     r = random.random()
     for i, p in enumerate(list_cumulativa):
         if r < p:
             return pop[i]
-
-
-
-
 
 
 # Dados iniciais
@@ -40,6 +36,7 @@ data = {
 
 # Inicializacao ###############################################################################
 
+itens = 22
 pop = []
 mochila = []
 n_pop = 100
@@ -64,7 +61,7 @@ graf = {"Valor": [], "Fitness": []}
 
 for i in range(n_pop):
     mochila.clear()
-    for i in range(22):
+    for i in range(itens):
         indice = random.randint(0, 1)
         mochila.append(indice)
     pop.append(mochila.copy())
@@ -76,8 +73,8 @@ while True:
     fitness.clear()  # Limpa a lista de fitness antes de calcular novamente
     for i in range(n_pop):
         peso = 0
-        for j in range(22):
-            peso = peso + pop[i][j]*data["Peso (g)"][j]
+        for j in range(itens):
+            peso += pop[i][j]*data["Peso (g)"][j]
             if peso > 3000:
                 peso = 0
         fitness.append(peso)
@@ -100,10 +97,10 @@ while True:
 
     for i in range(num_pais):
         for j in range(i+1,num_pais):
-            secao = random.randint(1,21)
+            secao = random.randint(1,itens-1)
             filho1.clear()
             filho2.clear()
-            for k in range(22):
+            for k in range(itens):
                 if(k<secao):
                     filho1.append(pais[i][k])
                     filho2.append(pais[j][k])
@@ -120,7 +117,7 @@ while True:
 
     for i in range(len(filhos)):
         peso = 0
-        for j in range(22):
+        for j in range(itens):
             peso = peso + filhos[i][j]*data["Peso (g)"][j]
             if peso > 3000:
                 peso = 0
@@ -136,7 +133,7 @@ while True:
         r = random.random()
         filho = copy.deepcopy(i)
         if r <= 0.05:
-            indice = random.randint(0, 21)
+            indice = random.randint(0, itens-1)
             filho[indice] = 1 - filho[indice]  
         geracao.append(filho)
 
@@ -163,7 +160,7 @@ while True:
 
     for i in range(n_pop):
         valor = 0
-        for j in range(22):
+        for j in range(itens):
             valor = valor + pop[i][j]*data["Valor"][j]
         valor_pop.append(valor)
         
@@ -207,5 +204,5 @@ plt.show()  # Exibir o gráfico
 print("Melhor Solucao: \n")
 for i in range(n_pop):
     print(f"Filho {i}:")
-    print([pop[i][j] * data["Item"][j] for j in range(22)])
+    print([pop[i][j] * data["Item"][j] for j in range(itens)])
 
