@@ -17,9 +17,10 @@ data = {
 # Inicializacao ###############################################################################
 
 itens = 22
+n_pop = 10
+taxa_mutacao = 0.03
 pop = []
 mochila = []
-n_pop = 10
 geracao = []
 fitness_pop = []
 fitness_mut = []
@@ -29,7 +30,6 @@ filho1 = []
 filho2 = []
 filhos = []
 pais = []
-taxa_mutacao = 0.03
 mem_valor = 0
 count_patamar = 0
 num_patamar = 10
