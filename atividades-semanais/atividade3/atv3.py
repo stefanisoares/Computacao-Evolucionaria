@@ -138,13 +138,14 @@ while True:
         filho2.clear()
         for k in range(itens):
             if(k<=secao):
-                filho1.append(pais[i][k])
-                filho2.append(pais[num_pais-i-1][k])
+                filho1.append(pais[num_pais-(num_pais-i)][k])
+                filho2.append(pais[num_pais-(num_pais-i+1)][k])
             else:
-                filho1.append(pais[num_pais-i-1][k])
-                filho2.append(pais[i][k])
+                filho1.append(pais[num_pais-(num_pais-i+1)][k])
+                filho2.append(pais[num_pais-(num_pais-i)][k])
         filhos.append(filho1)  
         filhos.append(filho2)
+    # print("len filhos",len(filhos))
 
 
     # Fitness Cross Over ###############################################################################
