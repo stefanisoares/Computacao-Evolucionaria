@@ -1,6 +1,11 @@
 import random
 import copy
 import matplotlib.pyplot as plt
+import time
+
+# Grava o tempo inicial ###############################################################################
+inicio = time.time()
+
 
 # Dados iniciais ###############################################################################
 
@@ -14,10 +19,11 @@ data = {
               150, 200]
 }
 
+
 # Inicializacao ###############################################################################
 
 itens = 22
-n_pop = 10
+n_pop = 100
 taxa_mutacao = 0.03
 num_ite = 1000
 pop = []
@@ -39,6 +45,7 @@ count_patamar = 0
 num_patamar = 10
 ite = 0
 graf = {"Valor": [], "Fitness": []}
+
 
 # Funções ###############################################################################
 
@@ -88,6 +95,7 @@ for i in range(n_pop):
     
     # print(mochila)
 
+
 # Valor População inicial ########################################################################
 
 valor_pop.clear()
@@ -96,7 +104,6 @@ for i in range(len(pop)):
     valor_pop.append(valor_function(i,pop))
 # print(valor_pop)
 # print("Valor populacao inicial: ", sum(valor_pop))
-
 
 
 while True:
@@ -216,7 +223,26 @@ while True:
     ite += 1
 
 
-# Plotando o gráfico
+# Melhor geracao ###############################################################################
+print("Melhor Geração:", melhor_iteracao)
+print("Valor Querer:", sum(melhor_valor))
+print("Valor Fitness:", sum(melhor_fitness))
+
+for i in range(len(melhor_geracao)):
+    print("Mochila:", i+1, "/ Fitness", melhor_fitness[i], "/ Querer", melhor_valor[i])
+    print([melhor_geracao[i][j] * data["Item"][j] for j in range(itens)])
+
+
+# Grava o tempo final
+fim = time.time()
+
+# Calcula o tempo total decorrido
+tempo_total = fim - inicio
+
+print(f"Tempo de execução: {round(tempo_total,3)} segundos")
+
+
+# Plotando o gráfico ###############################################################################
 plt.plot(graf["Fitness"])  # 'o' para marcar os pontos
 plt.title("Gráfico de Fitness")  # Título do gráfico
 plt.xlabel("Geracao")  # Rótulo do eixo X
@@ -230,12 +256,3 @@ plt.xlabel("Geracao")  # Rótulo do eixo X
 plt.ylabel("Querer")  # Rótulo do eixo Y
 plt.grid(True)  # Exibir grade
 plt.show()  # Exibir o gráfico
-
-# Melhor geracao ###############################################################################
-print("Melhor Geração:", melhor_iteracao)
-print("Valor Querer:", sum(melhor_valor))
-print("Valor Fitness:", sum(melhor_fitness))
-
-for i in range(len(melhor_geracao)):
-    print("Mochila:", i+1, "/ Fitness", melhor_fitness[i], "/ Querer", melhor_valor[i])
-    print([melhor_geracao[i][j] * data["Item"][j] for j in range(itens)])
