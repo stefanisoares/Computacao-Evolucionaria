@@ -129,22 +129,22 @@ while True:
 
 
     # Cross Over ###############################################################################
-
+    
     filhos.clear()
     for i in range(num_pais):
-        for j in range(i+1,num_pais):
-            secao = random.randint(1,itens-1)
-            filho1.clear()
-            #filho2.clear() ############################################################################### retirar filho 2
-            for k in range(itens):
-                if(k<=secao):
-                    filho1.append(pais[i][k])
-                    #filho2.append(pais[j][k]) ############################################################################### retirar filho 2
-                else:
-                    filho1.append(pais[j][k])
-                    #filho2.append(pais[i][k]) ############################################################################### retirar filho 2
-            filhos.append(filho1)  
-            #filhos.append(filho2)  ############################################################################### retirar filho 2
+        # for j in range(i+1,num_pais,2): ############################################################################### retirar exponencial de filhos
+        secao = random.randint(1,itens-1)
+        filho1.clear()
+        filho2.clear()
+        for k in range(itens):
+            if(k<=secao):
+                filho1.append(pais[i][k])
+                filho2.append(pais[num_pais-i-1][k])
+            else:
+                filho1.append(pais[num_pais-i-1][k])
+                filho2.append(pais[i][k])
+        filhos.append(filho1)  
+        filhos.append(filho2)
 
 
     # Fitness Cross Over ###############################################################################
