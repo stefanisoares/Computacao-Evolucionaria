@@ -19,22 +19,25 @@ data = {
 itens = 22
 n_pop = 10
 taxa_mutacao = 0.03
+num_ite = 1000
 pop = []
 mochila = []
-geracao = []
+mutacao = []
 fitness_pop = []
 fitness_mut = []
 fitness_cross = []
 valor_pop = []
 filho1 = []
-filho2 = []
+filho2 = [] ############################################################################### retirar filho 2
 filhos = []
 pais = []
-mem_valor = 0
+melhor_geracao = []
+melhor_iteracao = 0
+melhor_fitness = []
+melhor_valor = []
 count_patamar = 0
 num_patamar = 10
 ite = 0
-num_ite = 1000
 graf = {"Valor": [], "Fitness": []}
 
 # Funções ###############################################################################
@@ -58,20 +61,19 @@ def selecao_roleta(pop, fitness):
             # print(i, p)
             return pop[i]
 
-def fitness_function(fit):
+def fitness_function(n,fit):
     peso = 0
     for j in range(itens):
-        peso += fit[i][j]*data["Peso (g)"][j]
+        peso += fit[n][j]*data["Peso (g)"][j]
         if peso > 3000:
             peso = 0
     return peso
 
-def valor_function(vlr):
+def valor_function(n,vlr):
     valor = 0
     for j in range(itens):
-        valor += vlr[i][j]*data["Valor"][j]
+        valor += vlr[n][j]*data["Valor"][j]
     return valor
-
 
 
 # Populacao inicial ###############################################################################
@@ -84,16 +86,16 @@ for i in range(n_pop):
         mochila.append(indice)
     pop.append(mochila.copy())
     
-    print(mochila)
+    # print(mochila)
 
 # Valor População inicial ########################################################################
 
 valor_pop.clear()
 
-for i in range(n_pop):
-    valor_pop.append(valor_function(pop))
-    
-print("Valor populacao inicial: ", sum(valor_pop))
+for i in range(len(pop)):
+    valor_pop.append(valor_function(i,pop))
+# print(valor_pop)
+# print("Valor populacao inicial: ", sum(valor_pop))
 
 
 
@@ -104,14 +106,14 @@ while True:
     fitness_pop.clear()  # Limpa a lista de fitness antes de calcular novamente
 
     for i in range(len(pop)):
-        fitness_pop.append(fitness_function(pop))
-
-    print("Fitness População: ", sum(fitness_pop))
+        fitness_pop.append(fitness_function(i,pop))
+    # print(fitness_pop)
+    # print("Fitness População: ", sum(fitness_pop))
 
 
     # Seleção natural ###############################################################################
 
-    num_pais = int(n_pop/2)  
+    num_pais = round(len(pop)/2)
     pais.clear()
     for i in range(num_pais):
         pai = selecao_roleta(pop, fitness_pop)
@@ -122,36 +124,34 @@ while True:
     # Cross Over ###############################################################################
 
     filhos.clear()
-
     for i in range(num_pais):
         for j in range(i+1,num_pais):
             secao = random.randint(1,itens-1)
             filho1.clear()
-            filho2.clear()
+            #filho2.clear() ############################################################################### retirar filho 2
             for k in range(itens):
-                if(k<secao):
+                if(k<=secao):
                     filho1.append(pais[i][k])
-                    filho2.append(pais[j][k])
+                    #filho2.append(pais[j][k]) ############################################################################### retirar filho 2
                 else:
                     filho1.append(pais[j][k])
-                    filho2.append(pais[i][k])
+                    #filho2.append(pais[i][k]) ############################################################################### retirar filho 2
             filhos.append(filho1)  
-            filhos.append(filho2) 
+            #filhos.append(filho2)  ############################################################################### retirar filho 2
 
 
     # Fitness Cross Over ###############################################################################
 
     fitness_cross.clear()
-
     for i in range(len(filhos)):
-        fitness_cross.append(fitness_function(filhos))
-
-    print("Fitness Cross Over: ", sum(fitness_cross))
+        fitness_cross.append(fitness_function(i,filhos))
+    # print(fitness_cross)
+    # print("Fitness Cross Over: ", sum(fitness_cross))
 
 
     # Mutacao ###############################################################################
 
-    geracao.clear()
+    mutacao.clear()
 
     for i in filhos:
         r = random.random()
@@ -159,40 +159,53 @@ while True:
         if r <= taxa_mutacao:
             indice = random.randint(0, itens-1)
             filho[indice] = 1 - filho[indice]  
-        geracao.append(filho)
+        mutacao.append(filho)
 
         
     # Fitness Mutacao ###############################################################################
 
     fitness_mut.clear()
 
-    for i in range(len(geracao)):
-        fitness_mut.append(fitness_function(geracao))
+    for i in range(len(mutacao)):
+        fitness_mut.append(fitness_function(i,mutacao))
 
-    print("Fitness Mutacao: ", sum(fitness_mut))
+    # print("Fitness Mutacao: ", sum(fitness_mut))
 
 
     # Nova Populacao ###############################################################################
 
     pop.clear()
-    pop.extend(geracao)  # Adiciona todos os elementos de geracao a pop
+    pop.extend(mutacao)  # Adiciona todos os elementos de mutacao a pop
     valor_pop.clear()
 
-    for i in range(n_pop):
-        valor_pop.append(valor_function(pop))
+    for i in range(len(pop)):
+        valor_pop.append(valor_function(i,pop))
         
-    print("Valor nova populacao: ", sum(valor_pop))
+    #print("Valor nova populacao: ", valor_pop)
         
     graf["Valor"].append(sum(valor_pop))
     graf["Fitness"].append(sum(fitness_mut))
 
-     
+
+    # Melhor Geração ###############################################################################
+
+    if sum(valor_pop) > sum(melhor_valor):
+        melhor_iteracao = ite
+        melhor_valor.clear()
+        melhor_valor.extend(valor_pop)
+        melhor_geracao.clear()
+        melhor_geracao.extend(pop)
+        melhor_fitness.clear()
+        melhor_fitness.extend(fitness_mut)
+
+
     # Criterio de Parada ###############################################################################
 
-    if ((sum(valor_pop) <= (mem_valor)*1.01) and (sum(valor_pop) >= (mem_valor)*0.99)):
+    """if ((sum(valor_pop) <= (mem_valor)*1.01) and (sum(valor_pop) >= (mem_valor)*0.99)):
         count_patamar += 1
     else:
-        mem_valor = sum(valor_pop)
+        mem_valor = sum(valor_pop)"""
+
     if ((ite >= num_ite)):
     #if ((count_patamar>num_patamar) or (ite >= num_ite)):
         #print(count_patamar)
@@ -218,8 +231,11 @@ plt.ylabel("Querer")  # Rótulo do eixo Y
 plt.grid(True)  # Exibir grade
 plt.show()  # Exibir o gráfico
 
-#Melhor solucao
-print("Melhor Solucao: \n")
-for i in range(n_pop):
-    print(f"Filho {i}:")
-    print([pop[i][j] * data["Item"][j] for j in range(itens)])
+# Melhor geracao ###############################################################################
+print("Melhor Geração:", melhor_iteracao)
+print("Valor Querer:", sum(melhor_valor))
+print("Valor Fitness:", sum(melhor_fitness))
+
+for i in range(len(melhor_geracao)):
+    print("Mochila:", i+1, "/ Fitness", melhor_fitness[i], "/ Querer", melhor_valor[i])
+    print([melhor_geracao[i][j] * data["Item"][j] for j in range(itens)])
