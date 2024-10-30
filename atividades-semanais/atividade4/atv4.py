@@ -7,19 +7,6 @@ import time
 inicio = time.time()
 
 
-# Dados iniciais ###############################################################################
-
-data = {
-    "Item": list(range(1, 23)),
-    "Peso (g)": [350, 250, 160, 120, 200, 100, 120, 220, 40, 80, 
-                 100, 300, 180, 250, 220, 150, 280, 310, 120, 160, 
-                 110, 210],
-    "Valor": [300, 400, 450, 350, 250, 300, 200, 250, 150, 400, 
-              350, 300, 450, 500, 350, 400, 200, 300, 250, 300, 
-              150, 200]
-}
-
-
 # Inicializacao ###############################################################################
 
 n_linhas = 8
@@ -231,7 +218,7 @@ print("Valor Fitness:", sum(melhor_fitness))
 
 for i in range(len(melhor_geracao)):
     print("Mochila:", i+1, "/ Fitness", melhor_fitness[i], "/ Querer", melhor_valor[i])
-    print([melhor_geracao[i][j] * data["Item"][j] for j in range(n_linhas)])
+    #print([melhor_geracao[i][j] * data["Item"][j] for j in range(n_linhas)])
 
 
 # Grava o tempo final
