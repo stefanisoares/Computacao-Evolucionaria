@@ -11,7 +11,7 @@ inicio = time.time()
 
 n_linhas = 8
 n_pop = 6
-taxa_mutacao = 0.03
+taxa_mutacao = 0.001
 num_ite = 1000
 pop = []
 tabuleiro = []
@@ -19,15 +19,15 @@ mutacao = []
 fitness_pop = []
 fitness_mut = []
 fitness_cross = []
-valor_pop = []
+# valor_pop = []
 filho1 = []
-filho2 = [] ############################################################################### retirar filho 2
+filho2 = []
 filhos = []
 pais = []
 melhor_geracao = []
 melhor_iteracao = 0
 melhor_fitness = []
-melhor_valor = []
+# melhor_valor = []
 count_patamar = 0
 num_patamar = 10
 ite = 0
@@ -55,19 +55,17 @@ def selecao_roleta(pop, fitness):
             # print(i, p)
             return pop[i]
 
-def fitness_function(n,fit):
-    peso = 0
-    for j in range(n_linhas):
-        peso += fit[n][j]*data["Peso (g)"][j]
-        if peso > 3000:
-            peso = 0
-    return peso
-
-def valor_function(n,vlr):
-    valor = 0
-    for j in range(n_linhas):
-        valor += vlr[n][j]*data["Valor"][j]
-    return valor
+def fitness_function(fit):
+    pontos = 100
+    for i in range(len(fit)):
+        for j in range(i+1,len(fit)):
+            # Testando linhas
+            if fit[i] == fit[j]:
+                pontos -= 1
+            # Testando diagonais
+            if abs(i-j) == abs(fit[i]-fit[j]):
+                pontos -= 1
+    return pontos
 
 
 # Populacao inicial ###############################################################################
@@ -80,17 +78,7 @@ for i in range(n_pop):
         tabuleiro.append(pos_linha)
     pop.append(tabuleiro.copy())
     
-    #print(tabuleiro)
-
-
-# Valor População inicial ########################################################################
-
-valor_pop.clear()
-
-for i in range(len(pop)):
-    valor_pop.append(valor_function(i,pop))
-# print(valor_pop)
-# print("Valor populacao inicial: ", sum(valor_pop))
+    # print(tabuleiro)
 
 
 while True:
@@ -99,8 +87,8 @@ while True:
 
     fitness_pop.clear()  # Limpa a lista de fitness antes de calcular novamente
 
-    for i in range(len(pop)):
-        fitness_pop.append(fitness_function(i,pop))
+    for tab in pop:
+        fitness_pop.append(fitness_function(tab))
     # print(fitness_pop)
     # print("Fitness População: ", sum(fitness_pop))
 
@@ -116,7 +104,7 @@ while True:
 
 
     # Cross Over ###############################################################################
-    
+
     filhos.clear()
     for i in range(num_pais):
         # for j in range(i+1,num_pais,2): ############################################################################### retirar exponencial de filhos
@@ -138,8 +126,8 @@ while True:
     # Fitness Cross Over ###############################################################################
 
     fitness_cross.clear()
-    for i in range(len(filhos)):
-        fitness_cross.append(fitness_function(i,filhos))
+    for tab in filhos:
+        fitness_cross.append(fitness_function(tab))
     # print(fitness_cross)
     # print("Fitness Cross Over: ", sum(fitness_cross))
 
@@ -153,7 +141,7 @@ while True:
         filho = copy.deepcopy(i)
         if r <= taxa_mutacao:
             indice = random.randint(0, n_linhas-1)
-            filho[indice] = random.randint(1, n_linhas) 
+            filho[indice] = random.randint(1, n_linhas)
         mutacao.append(filho)
 
         
@@ -161,9 +149,9 @@ while True:
 
     fitness_mut.clear()
 
-    for i in range(len(mutacao)):
-        fitness_mut.append(fitness_function(i,mutacao))
-
+    for tab in mutacao:
+        fitness_mut.append(fitness_function(tab))
+    # print(fitness_mut)
     # print("Fitness Mutacao: ", sum(fitness_mut))
 
 
@@ -171,23 +159,18 @@ while True:
 
     pop.clear()
     pop.extend(mutacao)  # Adiciona todos os elementos de mutacao a pop
-    valor_pop.clear()
+    # print("nova pop")
+    # for i in pop:
+    #     print(i)
+        
 
-    for i in range(len(pop)):
-        valor_pop.append(valor_function(i,pop))
-        
-    #print("Valor nova populacao: ", valor_pop)
-        
-    graf["Valor"].append(sum(valor_pop))
     graf["Fitness"].append(sum(fitness_mut))
 
 
     # Melhor Geração ###############################################################################
 
-    if sum(valor_pop) > sum(melhor_valor):
+    if sum(fitness_mut) > sum(melhor_fitness):
         melhor_iteracao = ite
-        melhor_valor.clear()
-        melhor_valor.extend(valor_pop)
         melhor_geracao.clear()
         melhor_geracao.extend(pop)
         melhor_fitness.clear()
@@ -196,10 +179,10 @@ while True:
 
     # Criterio de Parada ###############################################################################
 
-    """if ((sum(valor_pop) <= (mem_valor)*1.01) and (sum(valor_pop) >= (mem_valor)*0.99)):
-        count_patamar += 1
-    else:
-        mem_valor = sum(valor_pop)"""
+    # if ((sum(valor_pop) <= (mem_valor)*1.01) and (sum(valor_pop) >= (mem_valor)*0.99)):
+    #     count_patamar += 1
+    # else:
+    #     mem_valor = sum(valor_pop)
 
     if ((ite >= num_ite)):
     #if ((count_patamar>num_patamar) or (ite >= num_ite)):
@@ -213,13 +196,12 @@ while True:
 
 # Melhor geracao ###############################################################################
 print("Melhor Geração:", melhor_iteracao)
-print("Valor Querer:", sum(melhor_valor))
 print("Valor Fitness:", sum(melhor_fitness))
 
-for i in range(len(melhor_geracao)):
-    print("Mochila:", i+1, "/ Fitness", melhor_fitness[i], "/ Querer", melhor_valor[i])
-    #print([melhor_geracao[i][j] * data["Item"][j] for j in range(n_linhas)])
 
+for i in range(len(melhor_geracao)):
+    print("Tabuleiro:", i+1, "/ Fitness", melhor_fitness[i], "/ Querer")
+    # print([melhor_geracao[i][j] for j in range(n_linhas)])
 
 # Grava o tempo final
 fim = time.time()
@@ -235,12 +217,5 @@ plt.plot(graf["Fitness"])  # 'o' para marcar os pontos
 plt.title("Gráfico de Fitness")  # Título do gráfico
 plt.xlabel("Geracao")  # Rótulo do eixo X
 plt.ylabel("Fitness")  # Rótulo do eixo Y
-plt.grid(True)  # Exibir grade
-plt.show()  # Exibir o gráfico
-
-plt.plot(graf["Valor"])  # 'o' para marcar os pontos
-plt.title("Gráfico de Querer")  # Título do gráfico
-plt.xlabel("Geracao")  # Rótulo do eixo X
-plt.ylabel("Querer")  # Rótulo do eixo Y
 plt.grid(True)  # Exibir grade
 plt.show()  # Exibir o gráfico
