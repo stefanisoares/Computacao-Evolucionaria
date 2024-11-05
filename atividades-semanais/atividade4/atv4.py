@@ -54,6 +54,10 @@ def selecao_roleta(pop, fitness):
         if r < p:
             # print(i, p)
             return pop[i]
+        
+        
+def selecao_duelo(pop, fitness):
+    duelo=0
 
 def fitness_function(fit):
     pontos = 100
@@ -99,6 +103,7 @@ while True:
     pais.clear()
     for i in range(num_pais):
         pai = selecao_roleta(pop, fitness_pop)
+        # pai = selecao_duelo(pop, fitness_pop)
         pais.append(pai)
         # print(pai)
 
@@ -108,11 +113,11 @@ while True:
     filhos.clear()
     for i in range(num_pais):
         # for j in range(i+1,num_pais,2): ############################################################################### retirar exponencial de filhos
-        secao = random.randint(1,n_linhas-1)
+        # secao = random.randint(1,n_linhas-1)
         filho1.clear()
         filho2.clear()
         for k in range(n_linhas):
-            if(k<=secao):
+            if(k<2 or k>5):                # cross em dois pontos
                 filho1.append(pais[num_pais-(num_pais-i)][k])
                 filho2.append(pais[num_pais-(num_pais-i+1)][k])
             else:
