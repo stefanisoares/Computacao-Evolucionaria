@@ -57,7 +57,20 @@ def selecao_roleta(pop, fitness):
         
         
 def selecao_duelo(pop, fitness):
-    duelo=0
+    k = 0.8
+    tab_cand = random.sample(range(len(pop)), 2)
+    r = random.random()
+    if(r<k):
+        if(fitness[tab_cand[0]]>fitness[tab_cand[1]]):
+            return pop[tab_cand[0]]
+        else:
+            return pop[tab_cand[1]]
+    else:
+        if(fitness[tab_cand[0]]>fitness[tab_cand[1]]):
+            return pop[tab_cand[1]]
+        else:
+            return pop[tab_cand[0]]
+        
 
 def fitness_function(fit):
     pontos = 100
@@ -102,8 +115,8 @@ while True:
     num_pais = round(len(pop)/2)
     pais.clear()
     for i in range(num_pais):
-        pai = selecao_roleta(pop, fitness_pop)
-        # pai = selecao_duelo(pop, fitness_pop)
+        # pai = selecao_roleta(pop, fitness_pop)
+        pai = selecao_duelo(pop, fitness_pop)
         pais.append(pai)
         # print(pai)
 
