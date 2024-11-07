@@ -8,7 +8,10 @@ inicio = time.time()
 
 
 # Inicializacao ###############################################################################
-
+select_cross = 9
+select_selecao = 9
+select_elitismo = 9
+taxa_elitismo = 0.25
 n_linhas = 8
 n_pop = 6
 taxa_mutacao = 0.001
@@ -24,6 +27,10 @@ filho1 = []
 filho2 = []
 filhos = []
 pais = []
+fitness_pais = 0
+melhor_pai = []
+fitless_filhos = 99999999999999999999999999999999999999
+pior_filho = []
 melhor_geracao = []
 melhor_iteracao = 0
 melhor_fitness = []
@@ -34,7 +41,7 @@ ite = 0
 graf = {"Valor": [], "Fitness": []}
 
 
-# Funções ###############################################################################
+############################################ FUNÇÕES ############################################
 
 def selecao_roleta(pop, fitness):
     soma_fitness = sum(fitness)
@@ -54,8 +61,8 @@ def selecao_roleta(pop, fitness):
         if r < p:
             # print(i, p)
             return pop[i]
-        
-        
+
+
 def selecao_duelo(pop, fitness):
     k = 0.8
     tab_cand = random.sample(range(len(pop)), 2)
@@ -70,7 +77,7 @@ def selecao_duelo(pop, fitness):
             return pop[tab_cand[1]]
         else:
             return pop[tab_cand[0]]
-        
+
 
 def fitness_function(fit):
     pontos = 100
@@ -84,6 +91,20 @@ def fitness_function(fit):
                 pontos -= 1
     return pontos
 
+
+######################################## SELEÇÃO DE MODOS #########################################
+
+while (select_selecao != 0) and (select_selecao != 1):
+    select_selecao = input("Digite 0 para seleção roleta e 1 para duelo: ")
+
+while (select_cross != 1) and (select_cross != 2):
+    select_cross = input("Digite 1 para cross em um ponto e 2 para dois pontos: ")
+
+while (select_elitismo != 0) and (select_elitismo != 1):
+    select_elitismo = input("Digite 0 para não usar elitismo e 1 para usar elitismo: ")
+    qtde_elitismo = round(n_linhas*taxa_elitismo)
+
+############################################ ALGORITMO ############################################
 
 # Populacao inicial ###############################################################################
 
@@ -115,27 +136,39 @@ while True:
     num_pais = round(len(pop)/2)
     pais.clear()
     for i in range(num_pais):
-        # pai = selecao_roleta(pop, fitness_pop)
-        pai = selecao_duelo(pop, fitness_pop)
+        if select_selecao == 0:
+            pai = selecao_roleta(pop, fitness_pop)
+        if select_selecao == 1:
+            pai = selecao_duelo(pop, fitness_pop)
         pais.append(pai)
-        # print(pai)
+        print(pai)
 
 
     # Cross Over ###############################################################################
 
     filhos.clear()
     for i in range(num_pais):
-        # for j in range(i+1,num_pais,2): ############################################################################### retirar exponencial de filhos
-        # secao = random.randint(1,n_linhas-1)
         filho1.clear()
         filho2.clear()
+        # for j in range(i+1,num_pais,2): ############################################################################### retirar exponencial de filhos
+        secao1 = random.randint(1,n_linhas-2) # para cross em um ponto
+        secao21 = random.randint(1,round(n_linhas/2)) # para cross em dois pontos
+        secao22 = random.randint(round(n_linhas/2),n_linhas-2) # para cross em dois pontos
         for k in range(n_linhas):
-            if(k<2 or k>5):                # cross em dois pontos
-                filho1.append(pais[num_pais-(num_pais-i)][k])
-                filho2.append(pais[num_pais-(num_pais-i+1)][k])
-            else:
-                filho1.append(pais[num_pais-(num_pais-i+1)][k])
-                filho2.append(pais[num_pais-(num_pais-i)][k])
+            if select_cross == 1:
+                if(k<=secao1):                  # cross em um ponto
+                    filho1.append(pais[num_pais-(num_pais-i)][k])
+                    filho2.append(pais[num_pais-(num_pais-i+1)][k])
+                else:
+                    filho1.append(pais[num_pais-(num_pais-i+1)][k])
+                    filho2.append(pais[num_pais-(num_pais-i)][k])
+            if select_cross == 2:
+                if(k<=secao21 or k>=secao22):                # cross em dois pontos
+                    filho1.append(pais[num_pais-(num_pais-i)][k])
+                    filho2.append(pais[num_pais-(num_pais-i+1)][k])
+                else:
+                    filho1.append(pais[num_pais-(num_pais-i+1)][k])
+                    filho2.append(pais[num_pais-(num_pais-i)][k])
         filhos.append(filho1)  
         filhos.append(filho2)
     # print("len filhos",len(filhos))
@@ -146,6 +179,7 @@ while True:
     fitness_cross.clear()
     for tab in filhos:
         fitness_cross.append(fitness_function(tab))
+
     # print(fitness_cross)
     # print("Fitness Cross Over: ", sum(fitness_cross))
 
@@ -173,6 +207,40 @@ while True:
     # print("Fitness Mutacao: ", sum(fitness_mut))
 
 
+    # Melhor Geração ###############################################################################
+
+    if sum(fitness_mut) > sum(melhor_fitness):
+        melhor_iteracao = ite
+        melhor_geracao.clear()
+        melhor_geracao.extend(mutacao)
+        melhor_fitness.clear()
+        melhor_fitness.extend(fitness_mut)
+
+    # Elitismo ###############################################################################
+
+    if select_elitismo == 1:
+        fitness_pais = 0
+
+        for tab in pais:
+            print("pai", tab)
+            if fitness_function(tab) > fitness_pais:
+                melhor_pai.clear()
+                melhor_pai.extend(tab)
+        
+        print(melhor_pai)
+
+
+        fitless_filhos = 9999999999999999999999999999999
+
+        for tab in mutacao:
+            print("filho", tab)
+            if fitness_function(tab) < fitless_filhos:
+                pior_filho.clear()
+                pior_filho.extend(tab)
+        
+        print(pior_filho)
+
+
     # Nova Populacao ###############################################################################
 
     pop.clear()
@@ -183,16 +251,6 @@ while True:
         
 
     graf["Fitness"].append(sum(fitness_mut))
-
-
-    # Melhor Geração ###############################################################################
-
-    if sum(fitness_mut) > sum(melhor_fitness):
-        melhor_iteracao = ite
-        melhor_geracao.clear()
-        melhor_geracao.extend(pop)
-        melhor_fitness.clear()
-        melhor_fitness.extend(fitness_mut)
 
 
     # Criterio de Parada ###############################################################################
