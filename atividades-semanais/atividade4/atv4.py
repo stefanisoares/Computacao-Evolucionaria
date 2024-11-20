@@ -11,13 +11,13 @@ inicio = time.time()
 # select_cross = 9
 # select_selecao = 9
 # select_elitismo = 9
-select_cross = 1
 select_selecao = 1
-select_elitismo = 0
+select_cross = 2
+select_elitismo = 1
 taxa_elitismo = 0.25
 n_linhas = 8
-n_pop = 6
-taxa_mutacao = 0.05
+n_pop = 40
+taxa_mutacao = 0.001
 num_ite = 1000
 pop = []
 tabuleiro = []
@@ -70,7 +70,7 @@ def selecao_roleta(pop, fitness):
 
 def selecao_duelo(pop, fitness):
     k = 0.8
-    tab_cand = random.sample(range(len(pop)), 2)
+    tab_cand = random.sample(range(len(pop)-1), 2)
     r = random.random()
     if(r<k):
         if(fitness[tab_cand[0]]>fitness[tab_cand[1]]):
