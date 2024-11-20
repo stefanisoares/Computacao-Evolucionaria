@@ -8,9 +8,12 @@ inicio = time.time()
 
 
 # Inicializacao ###############################################################################
-select_cross = 9
-select_selecao = 9
-select_elitismo = 9
+# select_cross = 9
+# select_selecao = 9
+# select_elitismo = 9
+select_cross = 1
+select_selecao = 1
+select_elitismo = 0
 taxa_elitismo = 0.25
 n_linhas = 8
 n_pop = 6
@@ -93,7 +96,7 @@ def fitness_function(fit):
                 pontos -= 1
     return pontos
 
-
+"""
 ######################################## SELEÇÃO DE MODOS #########################################
 
 while not((select_selecao == 0) or (select_selecao == 1)):
@@ -109,6 +112,8 @@ while not((select_elitismo == 0) or (select_elitismo == 1)):
     qtde_elitismo = round(n_linhas*taxa_elitismo)
     print(select_elitismo)
 
+"""
+    
 ############################################ ALGORITMO ############################################
 
 # Populacao inicial ###############################################################################
@@ -261,12 +266,18 @@ while True:
 
 
     # Nova Populacao ###############################################################################
-
-    pop.clear()
-    pop.extend(mutacao)  # Adiciona todos os elementos de mutacao a pop
-    # print("nova pop")
-    # for i in pop:
-    #     print(i)
+    if select_elitismo == 0:
+        pop.clear()
+        pop.extend(mutacao)  # Adiciona todos os elementos de mutacao a pop
+        # print("nova pop")
+        # for i in pop:
+        #     print(i)
+    if select_elitismo == 1:
+        pop.clear()
+        pop.extend(elitismo)  # Adiciona todos os elementos de mutacao a pop
+        # print("nova pop")
+        # for i in pop:
+        #     print(i)
         
 
     graf["Fitness"].append(sum(fitness_mut))
