@@ -14,7 +14,7 @@ select_elitismo = 9
 taxa_elitismo = 0.25
 n_linhas = 8
 n_pop = 6
-taxa_mutacao = 0.001
+taxa_mutacao = 0.05
 num_ite = 1000
 pop = []
 tabuleiro = []
@@ -31,6 +31,8 @@ fitness_pais = 0
 melhor_pai = []
 fitless_filhos = 99999999999999999999999999999999999999
 pior_filho = []
+ind_pior_filho = 0
+elitismo = []
 melhor_geracao = []
 melhor_iteracao = 0
 melhor_fitness = []
@@ -94,15 +96,18 @@ def fitness_function(fit):
 
 ######################################## SELEÇÃO DE MODOS #########################################
 
-while (select_selecao != 0) and (select_selecao != 1):
-    select_selecao = input("Digite 0 para seleção roleta e 1 para duelo: ")
+while not((select_selecao == 0) or (select_selecao == 1)):
+    select_selecao = int(input("Digite 0 para seleção roleta e 1 para duelo: "))
+    print(select_selecao)
 
-while (select_cross != 1) and (select_cross != 2):
-    select_cross = input("Digite 1 para cross em um ponto e 2 para dois pontos: ")
+while not((select_cross == 1) or (select_cross == 2)):
+    select_cross = int(input("Digite 1 para cross em um ponto e 2 para dois pontos: "))
+    print(select_cross)
 
-while (select_elitismo != 0) and (select_elitismo != 1):
-    select_elitismo = input("Digite 0 para não usar elitismo e 1 para usar elitismo: ")
+while not((select_elitismo == 0) or (select_elitismo == 1)):
+    select_elitismo = int(input("Digite 0 para não usar elitismo e 1 para usar elitismo: "))
     qtde_elitismo = round(n_linhas*taxa_elitismo)
+    print(select_elitismo)
 
 ############################################ ALGORITMO ############################################
 
@@ -141,7 +146,7 @@ while True:
         if select_selecao == 1:
             pai = selecao_duelo(pop, fitness_pop)
         pais.append(pai)
-        print(pai)
+        # print(pai)
 
 
     # Cross Over ###############################################################################
@@ -200,9 +205,10 @@ while True:
     # Fitness Mutacao ###############################################################################
 
     fitness_mut.clear()
-
+    # print("mutacao")
     for tab in mutacao:
         fitness_mut.append(fitness_function(tab))
+        # print(tab)
     # print(fitness_mut)
     # print("Fitness Mutacao: ", sum(fitness_mut))
 
@@ -222,23 +228,36 @@ while True:
         fitness_pais = 0
 
         for tab in pais:
-            print("pai", tab)
+            # print("pai", tab)
             if fitness_function(tab) > fitness_pais:
+                fitness_pais = fitness_function(tab)
                 melhor_pai.clear()
                 melhor_pai.extend(tab)
-        
-        print(melhor_pai)
+                        
+        # print("melhor pai",melhor_pai,fitness_function(melhor_pai))
 
 
         fitless_filhos = 9999999999999999999999999999999
 
-        for tab in mutacao:
-            print("filho", tab)
-            if fitness_function(tab) < fitless_filhos:
+        for i in range(len(mutacao)):
+            # print("filho", mutacao[i])
+            if fitness_function(mutacao[i]) <= fitless_filhos:
+                ind_pior_filho = i
+                fitless_filhos = fitness_function(mutacao[i])
                 pior_filho.clear()
-                pior_filho.extend(tab)
+                pior_filho.extend(mutacao[i])
         
-        print(pior_filho)
+        # print("pior filho",pior_filho,fitness_function(pior_filho),ind_pior_filho)
+
+        elitismo.clear()
+        for i in range(len(mutacao)):
+            if i == ind_pior_filho:
+                elitismo.append(melhor_pai)
+            else:
+                elitismo.append(mutacao[i])
+
+        # for i in range(len(elitismo)):
+        #     print(elitismo[i])
 
 
     # Nova Populacao ###############################################################################
@@ -276,7 +295,7 @@ print("Valor Fitness:", sum(melhor_fitness))
 
 
 for i in range(len(melhor_geracao)):
-    print("Tabuleiro:", i+1, "/ Fitness", melhor_fitness[i], "/ Querer")
+    print("Tabuleiro:", i+1, "/ Fitness", melhor_fitness[i])
     # print([melhor_geracao[i][j] for j in range(n_linhas)])
 
 # Grava o tempo final
