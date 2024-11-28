@@ -1,4 +1,5 @@
 import numpy as np
+import random
 
 """ FUNÇÕES """
 
@@ -29,15 +30,26 @@ c = [
 # imprime_matriz(custos)
 
 #############################deve ser gerada aleatoriamente####################################
-t = [
+"""t = [
 [0.00, 0.30, 0.25, 0.20, 0.30],
 [0.30, 0.00, 0.20, 0.20, 0.30],
 [0.25, 0.20, 0.00, 0.10, 0.15],
 [0.20, 0.20, 0.10, 0.00, 0.45],
-[0.30, 0.30, 0.15, 0.45, 0.00]] # Matriz de Feromônios
+[0.30, 0.30, 0.15, 0.45, 0.00]] # Matriz de Feromônios"""
+
+t = []
+for a in range(len(c)):
+    linha = []
+    for b in range(len(c)):
+        if a == b:
+            linha.append(0)
+        else:
+            linha.append(round(random.uniform(0.01,0.5),2))
+    t.append(linha)
+print("t")
+imprime_matriz(t)
 
 n = []
-linha = []
 for i in c:
     linha = []
     for j in i:
@@ -152,11 +164,11 @@ for ite in range(iteracoes):
 
     # print("Depositos")
     # print(depositos)
-    if caminho_anterior == caminho_atual:
-        print()
-        print("Acabou")
-        print()
-        break
+    # if caminho_anterior == caminho_atual:
+    #     print()
+    #     print("Acabou")
+    #     print()
+    #     break
         # while not((continuar == 0) or (continuar == 1)):
             # continuar = int(input("Deseja digite 0 se deseja parar ou 1 se deseja continuar: "))
     
@@ -177,18 +189,3 @@ for ite in range(iteracoes):
     # print("novo t")
     # imprime_matriz(t)
     print()
-            
-
-
-
-
-
-            
-
-
-
-
-
-
-
-
