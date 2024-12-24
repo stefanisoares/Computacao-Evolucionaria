@@ -18,12 +18,12 @@ class Funcionario:
     def exibir_dados(self):
         print(f"ID: {self.id}")
         print(f"Nome: {self.nome}")
-        print(f"Equipe: {self.atua}")
+        print(f"Atuação: {self.atua}")
         print(f"Função Primária: {self.funcao_primaria}")
         print(f"Função Secundária: {self.funcao_secundaria}")
         print(f"Função Terciária: {self.funcao_terciaria}")
-        print(f"Período de Férias: {self.inicio_ferias}")
-        print(f"Período de Férias: {self.fim_ferias}")
+        print(f"Início de Férias: {self.inicio_ferias}")
+        print(f"Fim de Férias: {self.fim_ferias}")
         print("-" * 40)
 
 def criar_funcionarios_arquivo(caminho_planilha):
