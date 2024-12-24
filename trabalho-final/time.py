@@ -2,6 +2,7 @@ import random
 import copy
 import time
 import pandas as pd
+import os
 
 class Funcionario:
     def __init__(self, id, nome, atua, funcao_primaria, funcao_secundaria, funcao_terciaria, inicio_ferias, fim_ferias):
@@ -49,7 +50,7 @@ def criar_funcionarios_arquivo(caminho_planilha):
     return funcionarios
 
 # Caminho do arquivo Excel
-caminho = "funcoes.xlsx"
+caminho = r"C:\Users\stefa\Desktop\funcoes.xlsx"
 
 # Criar funcionários a partir da planilha
 funcionarios = criar_funcionarios_arquivo(caminho)
