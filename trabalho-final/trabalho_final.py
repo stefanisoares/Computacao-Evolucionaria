@@ -102,22 +102,24 @@ equipes = [
     Equipe("Delta", 6, 8, "13:00", "00:00", ["F", "F", "SV", "SV", "F", "F", "SV", "SV", "F", "F", "SV", "SV", "F", "F", "SV", "SV", "F", "F", "SV", "SV", "F", "F"])
 ]
 
-# Inicialização da população inicial
-
 def inicializar_populacao_completa(dias):
-    individuo = {}
-    for dia in range(1, dias + 1):
-        individuo[dia] = {}
-        funcionarios_disponiveis = [f for f in funcionarios if dia not in f.ferias]
-        for equipe in equipes:
-            if equipe.ritmo[dia - 1] == "SV":
-                if len(funcionarios_disponiveis) >= equipe.min_funcion:
-                    alocacao = random.sample(funcionarios_disponiveis, k=equipe.min_funcion)
-                    individuo[dia][equipe.nome] = alocacao
-                    funcionarios_disponiveis = [f for f in funcionarios_disponiveis if f not in alocacao]
-                else:
-                    individuo[dia][equipe.nome] = []
-    return individuo
+    populacao = []
+    for _ in range(67):  # Número de indivíduos na população inicial
+        individuo = {}  # Deve ser um dicionário
+        for dia in range(1, dias + 1):
+            individuo[dia] = {}  # Cada dia deve ter um dicionário de equipes
+            funcionarios_disponiveis = [f for f in funcionarios if dia not in f.ferias]
+            for equipe in equipes:
+                if equipe.ritmo[dia - 1] == "SV":
+                    if len(funcionarios_disponiveis) >= equipe.min_funcion:
+                        alocacao = random.sample(funcionarios_disponiveis, k=equipe.min_funcion)
+                        individuo[dia][equipe.nome] = alocacao
+                        funcionarios_disponiveis = [f for f in funcionarios_disponiveis if f not in alocacao]
+                    else:
+                        individuo[dia][equipe.nome] = []
+        populacao.append(individuo)  # Garante que cada indivíduo é um dicionário
+    return populacao
+
 
 # Função de avaliação (fitness)
 def calcular_fitness(individuo):
@@ -149,20 +151,85 @@ def calcular_fitness(individuo):
 
     return fitness
 
-# Exibir alocação final
-def exibir_alocacao(individuo):
-    for dia, equipes_dia in individuo.items():
-        print(f"Dia {dia}:")
-        for equipe, funcionarios in equipes_dia.items():
-            nomes = [f.nome for f in funcionarios]
-            print(f"  {equipe}: {', '.join(nomes) if nomes else 'Nenhum funcionário alocado'}")
-        print("-" * 40)
+# Função de Seleção por Roleta
+def selecao_roleta(populacao, fitness_pop):
+    soma_fitness = sum(fitness_pop)
+    probabilidade = []
+    cumulativa = 0
+    list_cumulativa = []
+    for i in fitness_pop:
+        probabilidade.append(i / soma_fitness)
+        cumulativa += i / soma_fitness
+        list_cumulativa.append(cumulativa)
+    r = random.random()
+    for i, p in enumerate(list_cumulativa):
+        if r < p:
+            return populacao[i]
 
-# Testando a alocação completa
-individuo_completo = inicializar_populacao_completa(22)
-print("Alocação completa:")
-exibir_alocacao(individuo_completo)
+# Operador de Crossover
+def crossover(pai1, pai2, dias):
+    filho = {}
+    ponto_de_corte = random.randint(1, dias - 1)
+    for dia in range(1, dias + 1):
+        if dia <= ponto_de_corte:
+            filho[dia] = pai1[dia]
+        else:
+            filho[dia] = pai2[dia]
+    return filho
 
-# Testando fitness para o indivíduo alocado
-fitness = calcular_fitness(individuo_completo)
-print(f"Fitness do indivíduo: {fitness}")
+# Função de Mutação
+def mutacao(individuo, taxa_mutacao, dias):
+    novo_individuo = individuo.copy()
+    for dia in range(1, dias + 1):
+        if random.random() < taxa_mutacao:
+            equipe_mutada = random.choice(list(novo_individuo[dia].keys()))
+            if novo_individuo[dia][equipe_mutada]:
+                funcionario_removido = random.choice(novo_individuo[dia][equipe_mutada])
+                funcionarios_disponiveis = [f for f in funcionarios if f not in novo_individuo[dia][equipe_mutada] and f.ferias]
+                if funcionarios_disponiveis:
+                    novo_funcionario = random.choice(funcionarios_disponiveis)
+                    novo_individuo[dia][equipe_mutada].remove(funcionario_removido)
+                    novo_individuo[dia][equipe_mutada].append(novo_funcionario)
+    return novo_individuo
+
+# Execução do Algoritmo Genético
+num_geracoes = 100
+populacao = inicializar_populacao_completa(22)
+taxa_mutacao = 0.05
+for geracao in range(num_geracoes):
+    fitness_pop = [calcular_fitness(individuo) for individuo in populacao]
+    nova_populacao = []
+
+    while len(nova_populacao) < len(populacao):
+        # SELEÇÃO DOS PAIS USANDO ROLETA
+        pai1 = selecao_roleta(populacao, fitness_pop)
+        pai2 = selecao_roleta(populacao, fitness_pop)
+
+        # Verificar se os pais são válidos
+        if pai1 is None or pai2 is None:
+            print("Erro: seleção por roleta retornou None para um dos pais.")
+            continue  # Pular esta iteração se não conseguir selecionar pais válidos
+
+        #  APLICAR CROSSOVER PARA GERAR NOVOS INDIVÍDUOS
+        filho = crossover(pai1, pai2, 22)
+
+        #  APLICAR MUTAÇÃO NO FILHO
+        filho = mutacao(filho, taxa_mutacao, 22)
+
+        # Adicionar o novo indivíduo à nova população
+        nova_populacao.append(filho)
+
+    print(f"Geração {geracao}: Tamanho da nova população = {len(nova_populacao)}")  # Debug
+
+    if len(nova_populacao) == 0:
+        print("Erro: A nova população está vazia! Abortando execução.")
+        break  # Se a nova população está vazia, interromper para evitar erro
+
+    populacao = nova_populacao  # Atualizar a população para a próxima geração
+   
+
+# Melhor indivíduo da última geração
+melhor_individuo = max(populacao, key=calcular_fitness)
+print("Melhor alocação final:")
+exibir_alocacao(melhor_individuo)
+#print(f"Fitness do melhor indivíduo: {calcular_fitness(melhor_individuo)}")
